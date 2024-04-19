@@ -1,0 +1,29 @@
+name: Autograding Tests
+'on':
+- push
+- workflow_dispatch
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Autoencoder Test
+      id: autoencoder-test
+      uses: education/autograding-python-grader@v1
+      with:
+        timeout: 10
+        max-score: 10
+        setup-command: ''
+    - name: Autograding Reporter
+      uses: education/autograding-grading-reporter@v1
+      env:
+        AUTOENCODER-TEST_RESULTS: "${{steps.autoencoder-test.outputs.result}}"
+      with:
+        runners: autoencoder-test
